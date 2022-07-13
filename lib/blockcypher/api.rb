@@ -76,7 +76,8 @@ module BlockCypher
       transaction_sign_and_send(tx_new, private_key)
     end
 
-    def transaction_new(input_addreses, output_addresses, satoshi_amount)
+    def transaction_new(input_addreses, output_addresses, satoshi_amount,
+                        include_to_sign_tx: false)
       payload = {
         'inputs' => [
           {
@@ -90,7 +91,7 @@ module BlockCypher
           }
         ]
       }
-      api_http_post('/txs/new', json_payload: payload)
+      transaction_new_custom(payload, include_to_sign_tx: include_to_sign_tx)
     end
 
     def transaction_sign_and_send(new_tx, private_key)
@@ -121,9 +122,10 @@ module BlockCypher
       signatures
     end
 
-    def transaction_new_custom(payload)
+    def transaction_new_custom(payload, include_to_sign_tx: false)
       # Build payload yourself, for custom transactions
-      api_http_post('/txs/new', json_payload: payload)
+      query = { includeToSignTx: include_to_sign_tx }
+      api_http_post('/txs/new', json_payload: payload, query: query)
     end
 
     def transaction_send_custom(payload)
